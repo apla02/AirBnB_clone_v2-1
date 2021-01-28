@@ -14,18 +14,20 @@ from os import getenv
     "places/<place_id>/amenities", methods=['GET'], strict_slashes=False)
 def amenities_view_place(place_id):
     """Retrieves the list of all Amenity objects of a Place"""
-    my_place = storage.get(Place, place_id)
-    if my_place is None:
+    pl = storage.get(Place, place_id)
+    if pl is None:
         abort(404)
     if getenv('HBNB_TYPE_STORAGE') == 'db':
-        list_amenities = [value.to_dict() for value in my_place.amenities]
+        list_amenities = [value.to_dict() for value in pl.amenities]
     if getenv('HBNB_TYPE_STORAGE') != 'db':
-        list_amenities = [storage.get(Amenity, value).to_dict() for value in my_place.amenity_ids]
+        list_amenities = [storage.get(Amenity,
+                                      val).to_dict() for val in pl.amenity_ids]
     return jsonify(list_amenities)
 
 
 @app_views.route(
-    "/places/<place_id>/amenities/<amenity_id>", methods=['DELETE'], strict_slashes=False)
+    "/places/<place_id>/amenities/<amenity_id>",
+    methods=['DELETE'], strict_slashes=False)
 def delete_amenity_place(place_id, amenity_id):
     """Delete a Amenity object"""
     my_place = storage.get(Place, place_id)
@@ -46,13 +48,14 @@ def delete_amenity_place(place_id, amenity_id):
 
 
 @app_views.route(
-    "/places/<place_id>/amenities/<amenity_id>", methods=['POST'], strict_slashes=False)
+    "/places/<place_id>/amenities/<amenity_id>",
+    methods=['POST'], strict_slashes=False)
 def post_amenity_place(place_id, amenity_id):
     """Create a new Amenity object"""
     my_place = storage.get(Place, place_id)
     if my_place is None:
         abort(404)
-    
+
     my_amenity = storage.get(Amenity, amenity_id)
     if my_amenity is None:
         abort(404)
